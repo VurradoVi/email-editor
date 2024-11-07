@@ -14,42 +14,41 @@ const tools = [
 export function EmailEditor() {
   const [text, setText] = useState("loreMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM");
   const textRef = useRef<HTMLTextAreaElement | null>(null);
-  const [selectionStart, setSelectionStart] = useState(0)
-  const [selectionEnd, setSelectionEnd] = useState(0)
+  const [selectionStart, setSelectionStart] = useState(0);
+  const [selectionEnd, setSelectionEnd] = useState(0);
 
   const updateSelection = () => {
-    if (!textRef.current) return
-    setSelectionStart(textRef.current.selectionStart)
-    setSelectionEnd(textRef.current.selectionEnd)
-  } 
-
-  const applyFormat = (type: TStyle) => {
-    const selectedText = text.substring(selectionStart, selectionEnd)
-    
-    if (!selectedText) return
-    const before = text.substring(0, selectionStart)
-    const after = text.substring(selectionEnd)
-
-    setText(before + applyStyle(type, selectedText) + after)
-    
+    if (!textRef.current) return;
+    setSelectionStart(textRef.current.selectionStart);
+    setSelectionEnd(textRef.current.selectionEnd);
   };
 
-  const handleClick = (index) => {
-    switch(index) {
+  const applyFormat = (type: TStyle) => {
+    const selectedText = text.substring(selectionStart, selectionEnd);
+    
+    if (!selectedText) return;
+    const before = text.substring(0, selectionStart);
+    const after = text.substring(selectionEnd);
+
+    setText(`${before}${applyStyle(type, selectedText)}${after}`);
+  };
+
+  const handleClick = (i) => {
+    switch (i) {
       case 0:
-        setText('')
+        setText('');
         break;
       case 1:
-        applyFormat('bold')
+        applyFormat('bold');
         break;
       case 2:
-        applyFormat('italic')
+        applyFormat('italic');
         break;
-      case 1:
-        applyFormat('underline')
+      case 3:
+        applyFormat('underline');
         break;
       default:
-        console.log(`Кнопка ${index} нажата`);
+        console.log(`Кнопка ${i} нажата`);
     }
   };
 
@@ -63,10 +62,8 @@ export function EmailEditor() {
           spellCheck="false"
           onSelect={updateSelection}
           value={text}
-          onChange={e => setText(e.target.value)}
-        >
-          {text}
-        </textarea>
+          onChange={(e) => setText(e.target.value)}
+        />
         <div className={styles.actions}>
           <div className={styles.tools}>
             {tools.map((t, i) => (
