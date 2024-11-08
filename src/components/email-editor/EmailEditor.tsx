@@ -1,8 +1,8 @@
 import { Bold, Eraser, Italic, Underline } from "lucide-react";
 import styles from "./EmailEditor.module.scss";
-import React, { useRef, useState } from "react";
-import { applyStyle, TStyle } from "./apply-style";
-
+import useEditor from "../../hooks/useEditor";
+import React from "react";
+import useQueryMutation from "../../hooks/useQueryMutation";
 
 const tools = [
   { component: <Eraser /> },
@@ -12,40 +12,23 @@ const tools = [
 ];
 
 export function EmailEditor() {
-  const [text, setText] = useState("loreMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM");
-  const textRef = useRef<HTMLTextAreaElement | null>(null);
-  const [selectionStart, setSelectionStart] = useState(0);
-  const [selectionEnd, setSelectionEnd] = useState(0);
+  const { applyFormat, text, updateSelection, setText, textRef } = useEditor();
 
-  const updateSelection = () => {
-    if (!textRef.current) return;
-    setSelectionStart(textRef.current.selectionStart);
-    setSelectionEnd(textRef.current.selectionEnd);
-  };
+  const { mutate, isPending } = useQueryMutation({ text, setText });
 
-  const applyFormat = (type: TStyle) => {
-    const selectedText = text.substring(selectionStart, selectionEnd);
-    
-    if (!selectedText) return;
-    const before = text.substring(0, selectionStart);
-    const after = text.substring(selectionEnd);
-
-    setText(`${before}${applyStyle(type, selectedText)}${after}`);
-  };
-
-  const handleClick = (i) => {
+  const handleClick = (i: number) => {
     switch (i) {
       case 0:
-        setText('');
+        setText("");
         break;
       case 1:
-        applyFormat('bold');
+        applyFormat("bold");
         break;
       case 2:
-        applyFormat('italic');
+        applyFormat("italic");
         break;
       case 3:
-        applyFormat('underline');
+        applyFormat("underline");
         break;
       default:
         console.log(`Кнопка ${i} нажата`);
@@ -68,11 +51,13 @@ export function EmailEditor() {
           <div className={styles.tools}>
             {tools.map((t, i) => (
               <button key={i} onClick={() => handleClick(i)}>
-                {React.cloneElement(t.component, { size: 18 })}
+                {React.cloneElement(t.component, { size: 20 })}
               </button>
             ))}
           </div>
-          <button>Send</button>
+          <button disabled={isPending} onClick={() => mutate()}>
+            Send
+          </button>
         </div>
       </div>
     </div>
